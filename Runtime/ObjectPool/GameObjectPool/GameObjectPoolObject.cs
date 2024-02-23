@@ -16,11 +16,11 @@ public class GameObjectPoolObject : IPoolObject<GameObject>
 
     public void Recycle()
     {
-        Pool.Recycle(this);
+        Pool.RecycleObject(this);
     }
 
     public void Dispose()
     {
-        Pool.Dispose(this);
+        Pool.DisposeObject(this);
     }
 }

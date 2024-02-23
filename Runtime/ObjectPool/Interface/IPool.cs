@@ -17,11 +17,16 @@ public interface IPool<T>
     /// 回收IPoolObject
     /// </summary>
     /// <param name="poolObject"></param>
-    void Recycle(IPoolObject<T> poolObject);
+    void RecycleObject(IPoolObject<T> poolObject);
 
     /// <summary>
     /// 销毁IPoolObject
     /// </summary>
     /// <param name="poolObject"></param>
-    void Dispose(IPoolObject<T> poolObject);
+    void DisposeObject(IPoolObject<T> poolObject);
+
+    /// <summary>
+    /// 销毁自己
+    /// </summary>
+    void Dispose();
 }

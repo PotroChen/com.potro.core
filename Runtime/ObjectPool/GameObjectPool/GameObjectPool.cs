@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Pool;
 
 /// <summary>
 /// GameObject对象池
@@ -10,28 +11,38 @@ public class GameObjectPool : IPool<GameObject>
     public event Action<GameObject> OnRecycle;
 
     public int MaxSize { get; set; }
-    public int TotalCount { get { return objectsInPools.Count + objectsPoped.Count; } }
-    private List<IPoolObject<GameObject>> objectsInPools = new List<IPoolObject<GameObject>>();
+    public int TotalCount { get { return objectsInPool.Count + objectsPoped.Count; } }
+    private List<IPoolObject<GameObject>> objectsInPool = new List<IPoolObject<GameObject>>();
     private List<IPoolObject<GameObject>> objectsPoped = new List<IPoolObject<GameObject>>();
     private GameObject prefab;
 
     private GameObject poolRoot;
-    public GameObjectPool(GameObject prefab, int maxSize)
+    private bool rootCreateBySelf = true;
+    public GameObjectPool(GameObject prefab, int maxSize,Transform poolRoot = null)
     {
         this.prefab = prefab;
         this.MaxSize = maxSize;
-        poolRoot = new GameObject("GameObjectPool");
+
+        if (poolRoot == null)
+        {
+            this.poolRoot = new GameObject("GameObjectPool");
+            UnityEngine.Object.DontDestroyOnLoad(this.poolRoot);
+        }
+        else
+        {
+            this.poolRoot = poolRoot.gameObject;
+            rootCreateBySelf = false;
+        }
     }
 
     public void WarmUp()
     {
-        if (TotalCount < MaxSize)
+        while (TotalCount < MaxSize)
         {
-            GameObject content = GameObject.Instantiate(prefab);
-            content.transform.SetParent(poolRoot.transform);
+            GameObject content = GameObject.Instantiate(prefab, poolRoot.transform);
             content.SetActive(false);
             IPoolObject<GameObject> poolObject = new GameObjectPoolObject(this, content);
-            objectsInPools.Add(poolObject);
+            objectsInPool.Add(poolObject);
         }
     }
 
@@ -39,7 +50,7 @@ public class GameObjectPool : IPool<GameObject>
     {
         IPoolObject<GameObject> poolObject = null;
 
-        if (objectsInPools.Count == 0)
+        if (objectsInPool.Count == 0)
         {
             GameObject content = GameObject.Instantiate(prefab);
             poolObject = new GameObjectPoolObject(this, content);
@@ -50,19 +61,19 @@ public class GameObjectPool : IPool<GameObject>
         }
         else
         {
-            int lastIndex = objectsInPools.Count - 1;
-            poolObject = objectsInPools[lastIndex];
+            int lastIndex = objectsInPool.Count - 1;
+            poolObject = objectsInPool[lastIndex];
 
             poolObject.Content.SetActive(true);
 
-            objectsInPools.RemoveAt(lastIndex);
+            objectsInPool.RemoveAt(lastIndex);
             objectsPoped.Add(poolObject);
         }
         poolObject.Content.transform.SetParent(null);
         return poolObject;
     }
 
-    public void Recycle(IPoolObject<GameObject> poolObject)
+    public void RecycleObject(IPoolObject<GameObject> poolObject)
     {
         if (poolObject.Pool != this)
             return;
@@ -75,24 +86,34 @@ public class GameObjectPool : IPool<GameObject>
         else
         {
             objectsPoped.Remove(poolObject);
-            objectsInPools.Add(poolObject);
+            objectsInPool.Add(poolObject);
 
             poolObject.Content.transform.SetParent(poolRoot.transform);
             poolObject.Content.SetActive(false);
         }
     }
 
-    public void Dispose(IPoolObject<GameObject> poolObject)
+    public void DisposeObject(IPoolObject<GameObject> poolObject)
     {
-        if (poolObject.Pool != this)
-            return;
-
-        GameObject.DestroyImmediate(poolObject.Content);
+        if(poolObject.Content!=null)
+            GameObject.DestroyImmediate(poolObject.Content);
 
         if (objectsPoped.Contains(poolObject))
             objectsPoped.Remove(poolObject);
 
-        if (objectsInPools.Contains(poolObject))
-            objectsInPools.Remove(poolObject);
+        if (objectsInPool.Contains(poolObject))
+            objectsInPool.Remove(poolObject);
+    }
+
+    public void Dispose()
+    {
+        if (rootCreateBySelf && poolRoot != null)
+        {
+            GameObject.DestroyImmediate(poolRoot);
+        }
+        for (int i = 0; i < objectsInPool.Count; i++)
+        {
+            objectsInPool[i].Dispose();
+        }
     }
 }
