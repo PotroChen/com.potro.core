@@ -48,25 +48,23 @@ public class GameObjectPool : IPool<GameObject>
 
     public IPoolObject<GameObject> Get()
     {
-        IPoolObject<GameObject> poolObject = Get_Internal();
-        poolObject.Content.transform.SetParent(null);
+        IPoolObject<GameObject> poolObject = Get_Internal(null);
         return poolObject;
     }
 
-    public IPoolObject<GameObject> Get(Transform parent)
+    public IPoolObject<GameObject> Get(Transform parent) 
     {
-        IPoolObject<GameObject> poolObject = Get_Internal();
-        poolObject.Content.transform.SetParent(parent);
+        IPoolObject<GameObject> poolObject = Get_Internal(parent);
         return poolObject;
     }
 
-    private IPoolObject<GameObject> Get_Internal()
+    private IPoolObject<GameObject> Get_Internal(Transform parent)
     {
         IPoolObject<GameObject> poolObject = null;
 
         if (objectsInPool.Count == 0)
         {
-            GameObject content = GameObject.Instantiate(prefab);
+            GameObject content = GameObject.Instantiate(prefab, parent);
             poolObject = new GameObjectPoolObject(this, content);
 
             poolObject.Content.SetActive(true);
@@ -117,7 +115,6 @@ public class GameObjectPool : IPool<GameObject>
         if (objectsInPool.Contains(poolObject))
             objectsInPool.Remove(poolObject);
     }
-
 
     public void Dispose()
     {
