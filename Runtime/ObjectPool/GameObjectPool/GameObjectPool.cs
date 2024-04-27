@@ -48,6 +48,20 @@ public class GameObjectPool : IPool<GameObject>
 
     public IPoolObject<GameObject> Get()
     {
+        IPoolObject<GameObject> poolObject = Get_Internal();
+        poolObject.Content.transform.SetParent(null);
+        return poolObject;
+    }
+
+    public IPoolObject<GameObject> Get(Transform parent)
+    {
+        IPoolObject<GameObject> poolObject = Get_Internal();
+        poolObject.Content.transform.SetParent(parent);
+        return poolObject;
+    }
+
+    private IPoolObject<GameObject> Get_Internal()
+    {
         IPoolObject<GameObject> poolObject = null;
 
         if (objectsInPool.Count == 0)
@@ -69,7 +83,6 @@ public class GameObjectPool : IPool<GameObject>
             objectsInPool.RemoveAt(lastIndex);
             objectsPoped.Add(poolObject);
         }
-        poolObject.Content.transform.SetParent(null);
         return poolObject;
     }
 
@@ -104,6 +117,7 @@ public class GameObjectPool : IPool<GameObject>
         if (objectsInPool.Contains(poolObject))
             objectsInPool.Remove(poolObject);
     }
+
 
     public void Dispose()
     {
