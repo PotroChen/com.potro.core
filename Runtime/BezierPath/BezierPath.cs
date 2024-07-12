@@ -9,9 +9,31 @@ public class BezierPath : MonoBehaviour
     [Serializable]
     public struct BezierPoint
     {
-        public Vector3 mainPoint;
-        public Vector3 controlPoint1;
-        public Vector3 controlPoint2;
+        public Vector3 MainPoint;
+        public Vector3 ControlPoint1Local;
+        public Vector3 ControlPoint1
+        {
+            get
+            {
+                return MainPoint + ControlPoint1Local;
+            }
+            set
+            {
+                ControlPoint1Local = value - MainPoint;
+            }
+        }
+        public Vector3 ControlPoint2Local;
+        public Vector3 ControlPoint2
+        {
+            get
+            {
+                return MainPoint + ControlPoint2Local;
+            }
+            set
+            {
+                ControlPoint2Local = value - MainPoint;
+            }
+        }
     }
 
     public BezierPoint[] pathPoints;
@@ -30,8 +52,8 @@ public class BezierPath : MonoBehaviour
                 var pathPoint1 = pathPoints[i];
                 var pathPoint2 = pathPoints[i + 1];
                 float t = (float)sectionIndex / pathDetailLevel;
-                var pathPoint = GameFramework.Math.CubicBezier(pathPoint1.mainPoint, pathPoint1.controlPoint2,
-                    pathPoint2.controlPoint1, pathPoint2.mainPoint, t);
+                var pathPoint = GameFramework.Math.CubicBezier(pathPoint1.MainPoint, pathPoint1.ControlPoint2,
+                    pathPoint2.ControlPoint1, pathPoint2.MainPoint, t);
                 tempPathPosition.Add(pathPoint);
             }
         }
@@ -39,10 +61,13 @@ public class BezierPath : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    
+    public bool showGizmos = false;
     private void OnDrawGizmos()
     {
-        if (Application.isPlaying)
+        if (!showGizmos && Application.isPlaying)
             return;
+
         var pathPositions = GetPathPositions();
         for (int i = 0; i < pathPositions.Length - 1; i++)
         {

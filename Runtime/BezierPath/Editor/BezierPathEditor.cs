@@ -66,27 +66,27 @@ public class BezierPathEditor : Editor
     {
         var serializedProperty = pathPoints.GetArrayElementAtIndex(index);
 
-        var mainPoint = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.mainPoint));
-        var controlPoint1 = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.controlPoint1));
-        var controlPoint2 = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.controlPoint2));
+        var mainPoint = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.MainPoint));
+        var controlPoint1Local = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.ControlPoint1Local));
+        var controlPoint2Local = serializedProperty.FindPropertyRelative(nameof(BezierPath.BezierPoint.ControlPoint2Local));
 
         Rect currentPosition = rect;
         currentPosition.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.PropertyField(currentPosition, mainPoint);
 
         currentPosition.y += EditorGUIUtility.singleLineHeight;
-        EditorGUI.PropertyField(currentPosition, controlPoint1);
+        EditorGUI.PropertyField(currentPosition, controlPoint1Local);
 
         currentPosition.y += EditorGUIUtility.singleLineHeight;
-        EditorGUI.PropertyField(currentPosition, controlPoint2);
+        EditorGUI.PropertyField(currentPosition, controlPoint2Local);
     }
 
-    private void DrawBezierPointHandle(BezierPath bezierPath,int index)
+    private void DrawBezierPointHandle(BezierPath bezierPath, int index)
     {
         var pathPointArray = bezierPath.pathPoints;
-        var currentMainPoint = pathPointArray[index].mainPoint;
-        var currentControlPoint1 = pathPointArray[index].controlPoint1;
-        var currentControlPoint2 = pathPointArray[index].controlPoint2;
+        var currentMainPoint = pathPointArray[index].MainPoint;
+        var currentControlPoint1 = pathPointArray[index].ControlPoint1;
+        var currentControlPoint2 = pathPointArray[index].ControlPoint2;
 
         var oriHandleColor = Handles.color;
 
@@ -95,7 +95,7 @@ public class BezierPathEditor : Editor
         Handles.Label(newMainPointValue, styles.MainPoint_Label);
         if (newMainPointValue != currentMainPoint)
         {
-            pathPointArray[index].mainPoint = newMainPointValue;
+            pathPointArray[index].MainPoint = newMainPointValue;
         }
 
         Handles.color = Color.green;
@@ -104,7 +104,7 @@ public class BezierPathEditor : Editor
         Handles.DrawLine(newMainPointValue, newControlPoint1Value);
         if (newControlPoint1Value != currentControlPoint1)
         {
-            pathPointArray[index].controlPoint1 = newControlPoint1Value;
+            pathPointArray[index].ControlPoint1 = newControlPoint1Value;
         }
 
         Handles.color = Color.blue;
@@ -113,7 +113,7 @@ public class BezierPathEditor : Editor
         Handles.DrawLine(newMainPointValue, newControlPoint2Value);
         if (newControlPoint2Value != currentControlPoint2)
         {
-            pathPointArray[index].controlPoint2 = newControlPoint2Value;
+            pathPointArray[index].ControlPoint2 = newControlPoint2Value;
         }
 
         Handles.color = oriHandleColor;
