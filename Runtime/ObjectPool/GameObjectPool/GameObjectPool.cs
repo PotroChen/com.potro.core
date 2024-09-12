@@ -126,5 +126,10 @@ public class GameObjectPool : IPool<GameObject>
         {
             objectsInPool[i].Dispose();
         }
+
+        for (int i = objectsPoped.Count - 1; i >= 0; i--)
+        {
+            objectsPoped[i].Dispose();
+        }
     }
 }
