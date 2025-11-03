@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Pool;
@@ -75,7 +75,7 @@ public class GameObjectPool : IPool<GameObject>
         {
             int lastIndex = objectsInPool.Count - 1;
             poolObject = objectsInPool[lastIndex];
-
+            poolObject.Content.transform.SetParent(parent);
             poolObject.Content.SetActive(true);
 
             objectsInPool.RemoveAt(lastIndex);
