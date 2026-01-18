@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace GameFramework
 {
+    //TODO 可以直接传Event，而不用另外传Args
+
     /// <summary>
     /// 事件系统
     /// </summary>
